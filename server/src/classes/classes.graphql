@@ -1,0 +1,38 @@
+type Class {
+  id: String!
+  name: String!
+  fields: [CXXField!]!
+  methods: [Function!]!
+  bases: [Base!]!
+  relations: [ClassRelation!]
+  location: Location!
+  namespace: String
+  isStruct: Boolean
+}
+
+type ClassRelation {
+  from: String!
+  to:   String!
+}
+
+type Base {
+  type:      Type!
+  access:    Access!
+  name:      String!
+  isVirtual: Boolean
+}
+
+type CXXField {
+  type: Type!
+  name: String!
+}
+
+input CreateClassInput {
+  # Example field (placeholder)
+  name: String!
+  location: LocationInput!
+}
+
+input UpdateClassInput {
+  id: String!
+}

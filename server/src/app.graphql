@@ -1,0 +1,34 @@
+type Query {
+    users: [User]!
+    user(id: String!): User
+    projects: [Project]!
+    project(id: String!): Project
+    functions: [Function]!
+    function(id: String!): Function
+    files: [File]!
+    file(id: String!): File
+    classes: [Class]!
+    class(id: String!): Class
+}
+
+type Mutation {
+    createUser(createUserInput: CreateUserInput!): User!
+    updateUser(updateUserInput: UpdateUserInput!): User!
+    removeUser(id: Int!): User
+    createProject(createProjectInput: CreateProjectInput!): Project!
+    updateProject(updateProjectInput: UpdateProjectInput!): Project!
+    removeProject(id: Int!): Project
+    createFunction(createFunctionInput: CreateFunctionInput!): Function!
+    updateFunction(updateFunctionInput: UpdateFunctionInput!): Function!
+    removeFunction(id: Int!): Function
+    createFile(createFileInput: CreateFileInput!): File!
+    updateFileCLOC(updateFileCLOCInput: UpdateFileCLOCInput!): File!
+    updateFileCYCLO(updateFileCYCLOInput: UpdateFileCYCLOInput!): File!
+    updateFileGitCommits(updateFileGitCommitsInput: UpdateFileGitCommitsInput!): File!
+    updateFileInclusions(updateFileInclusionsInput: UpdateFileInclusionsInput!): File!
+    removeFile(id: Int!): File
+    createClass(createClassInput: CreateClassInput!): Class!
+    updateClass(updateClassInput: UpdateClassInput!): Class!
+    removeClass(id: Int!): Class
+}
+

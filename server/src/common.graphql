@@ -1,0 +1,23 @@
+enum Access {
+    PUBLIC
+    PROTECTED
+    PRIVATE
+    UNKNOWN
+}
+
+type Location {
+    line: Int!
+    column: Int!
+    path: String!
+}
+
+input LocationInput {
+    line: Int!
+    column: Int!
+    path: String!
+}
+
+type Type {
+    name:        String!
+    associatedType: [String!]!
+}

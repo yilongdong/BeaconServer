@@ -17,21 +17,148 @@ generator nestgraphql {
   fields_Validator_input = true
 }
 
-model Book {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  /// @Validator.MinLength(1)
-  name     String  @unique
-  type     String?
-  author   Author  @relation(fields: [authorId], references: [id])
-  authorId String  @db.ObjectId
+enum Role {
+  USER
+  ADMIN
 }
 
-model Author {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
+model User {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  name       String    @unique
+  role       Role      @default(USER)
+  projectIDs String[]  @db.ObjectId
+  projects   Project[] @relation(fields: [projectIDs], references: [id])
+}
+
+model Project {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  name         String
+  principalIDs String[] @db.ObjectId
+  principals   User[]   @relation(fields: [principalIDs], references: [id])
+  files        File[]
+}
+
+model File {
+  id         String             @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+  path       String
+  filename   String
+  directory  String
+  gitCommits GitCommit[]
+  inclusions Inclusion[]
+  CLOCInfo   CLOC?
+  CYCLOInfo  CYCLO[]
+  classes    Class[]
+  functions  Function[]
+  callgraph  FunctionRelation[]
+  project    Project?           @relation(fields: [projectId], references: [id])
+  projectId  String?            @db.ObjectId
+}
+
+model Class {
+  id        String          @id @default(auto()) @map("_id") @db.ObjectId
+  name      String          @unique
+  fields    CXXField[]
+  methods   Function[]
+  bases     Base[]
+  relations ClassRelation[]
+  location  Location?
+  namespace String?
+  isStruct  Boolean         @default(false)
+  file      File?           @relation(fields: [fileId], references: [id])
+  fileId    String?         @db.ObjectId
+}
+
+model Function {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  params        Param[]
+  returnType    Type
+  access        Access   @default(UNKNOWN)
+  isVirtual     Boolean?
+  isPureVirtual Boolean?
+  isStatic      Boolean
+  isConstructor Boolean?
+  isDestructor  Boolean?
+  fullname      String   @unique
+  file          File?    @relation(fields: [fileId], references: [id])
+  fileId        String?  @db.ObjectId
+  class         Class?   @relation(fields: [classId], references: [id])
+  classId       String?  @db.ObjectId
+}
+
+type FunctionRelation {
+  from String
+  to   String
+}
+
+enum Access {
+  PUBLIC
+  PROTECTED
+  PRIVATE
+  UNKNOWN
+}
+
+type Param {
+  type         Type
+  name         String?
+  defaultValue String?
+}
+
+type Type {
+  name           String
+  associatedType String[]
+}
+
+type Location {
+  line   Int
+  column Int
+  path   String
+}
+
+type ClassRelation {
+  from String
+  to   String
+}
+
+type Base {
+  type      Type
+  access    Access
+  isVirtual Boolean
+}
+
+type CXXField {
+  type   Type
   name   String
-  // 1 男性 2 女性
-  gender Int
-  /// @Validator.IsEmail()
-  email  String
-  books  Book[]
+  access Access
+}
+
+type Inclusion {
+  path   String
+  line   Int
+  column Int
+}
+
+type CYCLO {
+  functionName   String
+  lineOfCode     Int
+  cyclo          Int
+  tokenCount     Int
+  parameterCount Int
+}
+
+type CLOC {
+  language String
+  blank    Int
+  comment  Int
+  code     Int
+}
+
+type GitCommit {
+  time String
 }

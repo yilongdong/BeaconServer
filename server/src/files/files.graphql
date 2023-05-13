@@ -1,0 +1,96 @@
+type File {
+    id: String!
+    createdAt: String!
+    updatedAt: String!
+    path: String!
+    filename: String!
+    directory: String!
+    gitCommits: [GitCommit!]!
+    inclusions: [Inclusion!]!
+    CLOCInfo:   CLOC
+    CYCLOInfo: [CYCLO!]
+    classes:    [Class!]!
+    functions:  [Function!]!
+    callgraph:  [FunctionRelation!]!
+}
+
+type FunctionRelation {
+    from: String!
+    to:   String!
+}
+
+type Inclusion {
+    path: String!
+    line: Int!
+    column: Int!
+}
+
+type CYCLO {
+    functionName: String!
+    lineOfCode: Int!
+    cyclo: Int!
+    tokenCount : Int!
+    parameterCount: Int!
+}
+
+type CLOC {
+    language: String!
+    blank: Int!
+    comment: Int!
+    code: Int!
+}
+
+type GitCommit {
+    time: String!
+}
+
+input GitCommitInput {
+    time: String!
+}
+
+input CLOCInput {
+    language: String!
+    blank: Int!
+    comment: Int!
+    code: Int!
+}
+
+input CYCLOInput {
+    functionName: String!
+    lineOfCode: Int!
+    cyclo: Int!
+    tokenCount : Int!
+    parameterCount: Int!
+}
+
+input FunctionRelationInput {
+    from: String!
+    to:   String!
+}
+
+input InclusionInput {
+    path: String!
+    line: Int!
+    column: Int!
+}
+
+input CreateFileInput {
+    path: String!
+}
+
+input UpdateFileGitCommitsInput {
+    id: String!
+    gitCommits: [GitCommitInput!]!
+}
+input UpdateFileInclusionsInput {
+    id: String!
+    inclusions: [InclusionInput!]!
+}
+input UpdateFileCLOCInput {
+    id: String!
+    CLOC: CLOCInput!
+}
+input UpdateFileCYCLOInput {
+    id: String!
+    CYCLO: [CYCLOInput!]!
+}

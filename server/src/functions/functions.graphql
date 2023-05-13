@@ -1,0 +1,30 @@
+type Function {
+  id: String!
+  name: String!
+  params: [Param!]!
+  returnType: [Type!]
+  access: Access!
+  isVirtual:  Boolean
+  isPureVirtual:  Boolean
+  isStatic: Boolean!
+  isConstructor:  Boolean
+  isDestructor: Boolean
+  fullname: String!
+  classname: String
+}
+
+type Param {
+  type:         Type!
+  name:         String
+  defaultValue: String
+}
+
+input CreateFunctionInput {
+  name: String!
+  isStatic: Boolean!
+#  TODO: 补充
+}
+
+input UpdateFunctionInput {
+  id: String!
+}

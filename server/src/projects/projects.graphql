@@ -1,0 +1,25 @@
+type Project {
+  id: String!
+  createdAt: String!
+  updatedAt: String!
+  name: String!
+  principals: [User!]
+  files: [File!]
+}
+
+input CreateProjectInput {
+  name: String!
+  principalIDs: [String!]
+}
+
+input UpdateProjectInput {
+  id: String!
+  name: String!
+  principalIDs: [String!]
+}
+
+input AddPrincipalForProjectInput {
+  projectID: String!
+  principalID: String!
+}
+

@@ -12,6 +12,7 @@ export class FunctionsService {
   findAll() {
     return this.prisma.function.findMany({});
   }
+  find
   findManyByClassID(id: string) {
     return this.prisma.function.findMany({
       where: {

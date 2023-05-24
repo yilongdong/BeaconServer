@@ -1,4 +1,3 @@
-
 /*
  * -------------------------------------------------------
  * THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
@@ -15,9 +14,32 @@ export enum Access {
     UNKNOWN = "UNKNOWN"
 }
 
+export enum TopType {
+    GIT = "GIT",
+    LOC = "LOC",
+    CLASS = "CLASS"
+}
+
+export enum SearchEnum {
+    ClassAttrs = "ClassAttrs",
+    CLOC = "CLOC",
+    CYCLO = "CYCLO"
+}
+
 export enum Role {
     USER = "USER",
     ADMIN = "ADMIN"
+}
+
+export class UserLoginInput {
+    username: string;
+    password: string;
+    project: string;
+}
+
+export class SortInput {
+    take: number;
+    sort: string;
 }
 
 export class CreateClassInput {
@@ -98,6 +120,16 @@ export class UpdateFunctionInput {
     id: string;
 }
 
+export class PageInput {
+    after: number;
+    take: number;
+}
+
+export class SearchInput {
+    text: string;
+    type?: Nullable<SearchEnum>;
+}
+
 export class CreateProjectInput {
     name: string;
     principalIDs?: Nullable<string[]>;
@@ -125,10 +157,27 @@ export class UpdateUserInput {
     role: Role;
 }
 
+export class UserLoginOutput {
+    id: string;
+    username: string;
+    role: Role;
+    projectID: string;
+    projectName: string;
+}
+
+export class SeriesItem {
+    name: string;
+    value: number;
+}
+
 export abstract class IQuery {
     abstract users(): Nullable<User>[] | Promise<Nullable<User>[]>;
 
     abstract user(id: string): Nullable<User> | Promise<Nullable<User>>;
+
+    abstract login(userLoginInput: UserLoginInput): Nullable<UserLoginOutput> | Promise<Nullable<UserLoginOutput>>;
+
+    abstract topFile(projectID: string, sortInput: SortInput): SeriesItem[] | Promise<SeriesItem[]>;
 
     abstract projects(): Nullable<Project>[] | Promise<Nullable<Project>[]>;
 
@@ -212,6 +261,7 @@ export class Base {
 export class CXXField {
     type: Type;
     name: string;
+    access: Access;
 }
 
 export class Location {
@@ -239,6 +289,7 @@ export class File {
     classes: Class[];
     functions: Function[];
     callgraph: FunctionRelation[];
+    classCount?: Nullable<number>;
 }
 
 export class FunctionRelation {
@@ -275,7 +326,7 @@ export class Function {
     id: string;
     name: string;
     params: Param[];
-    returnType?: Nullable<Type[]>;
+    returnType: Type;
     access: Access;
     isVirtual?: Nullable<boolean>;
     isPureVirtual?: Nullable<boolean>;
@@ -284,12 +335,20 @@ export class Function {
     isDestructor?: Nullable<boolean>;
     fullname: string;
     classname?: Nullable<string>;
+    fileId?: Nullable<string>;
 }
 
 export class Param {
     type: Type;
     name?: Nullable<string>;
     defaultValue?: Nullable<string>;
+}
+
+export class CountInfo {
+    file?: Nullable<number>;
+    user?: Nullable<number>;
+    code?: Nullable<number>;
+    class?: Nullable<number>;
 }
 
 export class Project {
@@ -299,6 +358,50 @@ export class Project {
     name: string;
     principals?: Nullable<User[]>;
     files?: Nullable<File[]>;
+    fileCount?: Nullable<number>;
+    userCount?: Nullable<number>;
+    codeCount?: Nullable<number>;
+    classCount?: Nullable<number>;
+    tops: SeriesItem[];
+    search: SearchResult[];
+}
+
+export class FileCYCLO {
+    CYCLOInfo: CYCLO[];
+    path: string;
+    filename: string;
+}
+
+export class FileLOC {
+    CLOCInfo?: Nullable<CLOC>;
+    path: string;
+}
+
+export class ClassMethodAttrs {
+    public: number;
+    private: number;
+    protected: number;
+    sum: number;
+}
+
+export class ClassFieldAttrs {
+    public: number;
+    private: number;
+    protected: number;
+    sum: number;
+}
+
+export class ClassCouplingAttrs {
+    inherit: number;
+    other: number;
+    sum: number;
+}
+
+export class ClassAttrs {
+    name: string;
+    coupling: ClassCouplingAttrs;
+    method: ClassMethodAttrs;
+    field: ClassFieldAttrs;
 }
 
 export class User {
@@ -310,4 +413,5 @@ export class User {
     projects?: Nullable<Project[]>;
 }
 
+export type SearchResult = ClassAttrs | FileLOC | FileCYCLO;
 type Nullable<T> = T | null;

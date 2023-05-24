@@ -9,4 +9,8 @@ export class FilesClassesResolver {
   async classes(@Parent() file) {
     return this.classesService.findManyByFileID(file.id);
   }
+  @ResolveField()
+  async classCount(@Parent() file) {
+    return this.classesService.countClassOfFile(file.id);
+  }
 }

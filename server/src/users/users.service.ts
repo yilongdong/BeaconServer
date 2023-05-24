@@ -1,7 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Prisma } from '.prisma/client';
-import { CreateUserInput, UpdateUserInput } from '../graphql';
+import {
+  CreateUserInput,
+  Role,
+  UpdateUserInput,
+  UserLoginInput,
+  UserLoginOutput,
+} from '../graphql';
 
 @Injectable()
 export class UsersService {
@@ -14,6 +20,34 @@ export class UsersService {
     return this.prisma.user.create({
       data: data,
     });
+  }
+
+  async login(userLoginInput: UserLoginInput) {
+    const result = await this.prisma.user.findUnique({
+      where: {
+        name: userLoginInput.username,
+      },
+    });
+    const projectsResult = await this.prisma.project.findUnique({
+      where: {
+        name: userLoginInput.project,
+      },
+    });
+    if (
+      result &&
+      projectsResult &&
+      userLoginInput.password == result.password
+    ) {
+      const userLoginOutput: UserLoginOutput = {
+        id: result.id,
+        username: result.name,
+        role: Role.USER,
+        projectID: projectsResult.id,
+        projectName: projectsResult.name,
+      };
+      return userLoginOutput;
+    }
+    return null;
   }
 
   findAll() {

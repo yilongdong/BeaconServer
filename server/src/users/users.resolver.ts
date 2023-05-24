@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UsersService } from './users.service';
-import { CreateUserInput, UpdateUserInput } from '../graphql';
+import {CreateUserInput, UpdateUserInput, UserLoginInput} from '../graphql';
 @Resolver('User')
 export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
@@ -13,6 +13,11 @@ export class UsersResolver {
   @Query('users')
   findAll() {
     return this.usersService.findAll();
+  }
+
+  @Query('login')
+  login(@Args('userLoginInput') userLoginInput: UserLoginInput) {
+    return this.usersService.login(userLoginInput);
   }
 
   @Query('user')

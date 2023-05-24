@@ -33,6 +33,13 @@ export class ClassesService {
       },
     });
   }
+  countClassOfFile(id: string) {
+    return this.prisma.class.count({
+      where: {
+        fileId: id,
+      },
+    });
+  }
 
   update(id: string, updateClassInput: UpdateClassInput) {
     return `This action updates a #${id} class`;

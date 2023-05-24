@@ -15,7 +15,6 @@ import { UploadModule } from './upload/upload.module';
   controllers: [AppController],
   providers: [AppService],
   imports: [
-    // BooksModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       typePaths: ['./**/*.graphql', './*.graphql'],

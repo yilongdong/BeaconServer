@@ -12,6 +12,7 @@ type File {
     classes:    [Class!]!
     functions:  [Function!]!
     callgraph:  [FunctionRelation!]!
+    classCount: Int
 }
 
 type FunctionRelation {

@@ -1,6 +1,32 @@
+input UserLoginInput {
+    username: String!
+    password: String!
+    project: String!
+}
+
+type UserLoginOutput {
+    id: String!
+    username: String!
+    role: Role!
+    projectID: String!
+    projectName: String!
+}
+
+input SortInput {
+    take: Int!
+    sort: String!
+}
+
+type SeriesItem {
+    name: String!
+    value: Int!
+}
+
 type Query {
     users: [User]!
     user(id: String!): User
+    login(userLoginInput: UserLoginInput!): UserLoginOutput
+    topFile(projectID: String!, sortInput: SortInput!): [SeriesItem!]!
     projects: [Project]!
     project(id: String!): Project
     functions: [Function]!

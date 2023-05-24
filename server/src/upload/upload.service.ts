@@ -23,6 +23,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { Prisma } from '.prisma/client';
 import { Access } from '@prisma/client';
+import { json } from 'express';
+import { connect } from 'rxjs';
 
 class Convertor {
   static toGitCommit(gitCommit: GitInfo): Prisma.GitCommitCreateInput {
@@ -98,6 +100,7 @@ class Convertor {
       to: clsRelation.to,
     };
   }
+
   static toClassCreateInput(cxxClass: CXXClass): Prisma.ClassCreateInput {
     if (cxxClass == undefined) return undefined;
     return {
@@ -106,7 +109,9 @@ class Convertor {
       isStruct: cxxClass?.isStruct,
       location: Convertor.toLocationCreateInput(cxxClass?.location),
       methods: {
-        create: cxxClass?.methods?.map(Convertor.toFunctionCreateInput),
+        connectOrCreate: cxxClass?.methods?.map?.(
+          Convertor.toFunctionCreateOrConnectInput,
+        ),
       },
       name: cxxClass?.name,
       namespace: cxxClass?.namespace,
@@ -167,6 +172,17 @@ class Convertor {
     };
   }
 
+  static toFunctionCreateOrConnectInput(
+    cxxFunction: CXXFunction,
+  ): Prisma.FunctionCreateOrConnectWithoutFileInput {
+    return {
+      where: {
+        fullname: cxxFunction?.fullName,
+      },
+      create: Convertor.toFunctionCreateInput(cxxFunction),
+    };
+  }
+
   static transform<From, To>(
     items: From[] | undefined,
     callback: (value: From, index: number, array: From[]) => To,
@@ -177,6 +193,17 @@ class Convertor {
 
   static toFileCreateInput(fileInfo: FileInfo): Prisma.FileCreateInput {
     if (fileInfo == undefined) return undefined;
+    const functionList = fileInfo?.tuInfo?.functionList?.filter(
+      (func: CXXFunction) => {
+        // return func.className == undefined;
+        return false;
+      },
+    );
+
+    fileInfo?.tuInfo?.classList.forEach((cls) => {
+      functionList.push(...cls.methods);
+    });
+
     return {
       path: fileInfo.path,
       filename: path.basename(fileInfo.path),
@@ -189,8 +216,8 @@ class Convertor {
         create: fileInfo?.tuInfo?.classList.map?.(Convertor.toClassCreateInput),
       },
       functions: {
-        create: fileInfo?.tuInfo?.functionList?.map?.(
-          Convertor.toFunctionCreateInput,
+        connectOrCreate: functionList?.map?.(
+          Convertor.toFunctionCreateOrConnectInput,
         ),
       },
     };
@@ -207,16 +234,19 @@ class Convertor {
     projectDumpFormat: ProjectDumpFormat,
   ): Prisma.ProjectCreateInput {
     if (projectDumpFormat == undefined) return undefined;
-    const username = 'testUser';
+    const username = 'yilongdong';
     const result: Prisma.ProjectCreateInput = {
-      name: projectDumpFormat?.name,
+      // name: projectDumpFormat?.name,
+      name: 'CXXScanner',
       principals: {
-        connectOrCreate: {
-          where: {
-            name: username,
+        connectOrCreate: [
+          {
+            where: {
+              name: username,
+            },
+            create: Convertor.toUserCreateInput(username),
           },
-          create: Convertor.toUserCreateInput(username),
-        },
+        ],
       },
       files: {
         create: projectDumpFormat?.fileInfoList?.map?.(
@@ -241,8 +271,23 @@ class Convertor {
 @Injectable()
 export class UploadService {
   constructor(private prisma: PrismaService) {}
-  store(projectDumpFormat: ProjectDumpFormat) {
-    return this.prisma.project.create({
+
+  debug(projectDumpFormat: ProjectDumpFormat) {
+    const filePathList = projectDumpFormat.fileInfoList.map(
+      (fileInfo, index) => {
+        return fileInfo.path;
+      },
+    );
+    const countResult = {};
+    filePathList.map((path) => {
+      countResult[path] = countResult[path] + 1 || 1;
+    });
+    console.log(JSON.stringify(countResult, null, 4));
+  }
+  async store(projectDumpFormat: ProjectDumpFormat) {
+    this.debug(projectDumpFormat);
+
+    await this.prisma.project.create({
       data: Convertor.toProjectCreateInput(projectDumpFormat),
       include: {
         principals: true,

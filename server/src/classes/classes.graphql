@@ -25,6 +25,7 @@ type Base {
 type CXXField {
   type: Type!
   name: String!
+  access: Access!
 }
 
 input CreateClassInput {

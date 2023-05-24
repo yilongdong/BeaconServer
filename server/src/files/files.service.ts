@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   CreateFileInput,
+  SeriesItem,
+  SortInput,
   UpdateFileCLOCInput,
   UpdateFileCYCLOInput,
   UpdateFileGitCommitsInput,
@@ -41,6 +43,93 @@ export class FilesService {
 
   findManyByProjectID(id: string) {
     return this.prisma.file.findMany({
+      where: {
+        projectId: id,
+      },
+    });
+  }
+
+  async topsOfLOC(projectID: string, sortInput: SortInput) {
+    let order: 'desc' | 'asc' = 'desc';
+    if (sortInput.sort == 'asc') {
+      order = 'asc';
+    }
+    const filesLocList = await this.prisma.file.findMany({
+      where: {
+        projectId: projectID,
+      },
+      take: sortInput.take,
+      select: {
+        filename: true,
+        CLOCInfo: {
+          select: {
+            code: true,
+          },
+        },
+      },
+      orderBy: {
+        CLOCInfo: {
+          code: order,
+        },
+      },
+    });
+    if (filesLocList) {
+      return (
+        filesLocList?.map((fileLoc) => {
+          const {
+            filename,
+            CLOCInfo: { code },
+          } = fileLoc;
+          return {
+            name: filename,
+            value: code,
+          };
+        }) || []
+      );
+    }
+    return [];
+  }
+  async topsOfGit(projectID: string, sortInput: SortInput) {
+    const fileGitList = await this.prisma.file.findMany({
+      where: {
+        projectId: projectID,
+      },
+      select: {
+        filename: true,
+        gitCommits: true,
+      },
+    });
+    if (!fileGitList) {
+      return [];
+    }
+    const seriesItems: SeriesItem[] = fileGitList.map((gitInfo) => {
+      const { filename, gitCommits } = gitInfo;
+      return {
+        name: filename,
+        value: gitCommits?.length || 0,
+      };
+    });
+
+    if (sortInput.sort == 'asc') {
+      seriesItems.sort((lhs, rhs) => {
+        return lhs.value - rhs.value;
+      });
+    } else {
+      seriesItems.sort((lhs, rhs) => {
+        return rhs.value - lhs.value;
+      });
+    }
+
+    const result = seriesItems.slice(
+      0,
+      Math.min(sortInput.take, seriesItems.length),
+    );
+    console.log(result);
+    return result;
+  }
+
+  countFileOfProject(id: string) {
+    return this.prisma.file.count({
       where: {
         projectId: id,
       },

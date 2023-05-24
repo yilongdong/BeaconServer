@@ -13,7 +13,7 @@ export class UploadController {
 
   @Post('beacon-model')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
     return this.uploadService.store(
       ProjectDumpFormat.decode(file.buffer, file.buffer.length),
     );

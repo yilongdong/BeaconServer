@@ -2,7 +2,7 @@ type Function {
   id: String!
   name: String!
   params: [Param!]!
-  returnType: [Type!]
+  returnType: Type!
   access: Access!
   isVirtual:  Boolean
   isPureVirtual:  Boolean
@@ -11,6 +11,7 @@ type Function {
   isDestructor: Boolean
   fullname: String!
   classname: String
+  fileId: String
 }
 
 type Param {

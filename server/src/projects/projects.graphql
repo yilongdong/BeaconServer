@@ -1,3 +1,15 @@
+type CountInfo {
+  file: Int
+  user: Int
+  code: Int
+  class: Int
+}
+enum TopType {
+  GIT
+  LOC
+  CLASS
+}
+
 type Project {
   id: String!
   createdAt: String!
@@ -5,6 +17,62 @@ type Project {
   name: String!
   principals: [User!]
   files: [File!]
+  fileCount: Int
+  userCount: Int
+  codeCount: Int
+  classCount: Int
+  tops(sortInput: SortInput! type: TopType!): [SeriesItem!]!
+  search(pageInput:PageInput!, text: String!, type: SearchEnum!): [SearchResult!]!
+}
+
+union SearchResult = ClassAttrs | FileLOC | FileCYCLO
+
+type FileCYCLO {
+  CYCLOInfo: [CYCLO!]!
+  path: String!
+  filename: String!
+}
+
+type FileLOC {
+  CLOCInfo: CLOC
+  path: String!
+}
+input PageInput {
+  after: Int!
+  take: Int!
+}
+enum SearchEnum {
+  ClassAttrs
+  CLOC
+  CYCLO
+}
+input SearchInput {
+  text: String!
+  type: SearchEnum
+}
+
+type ClassMethodAttrs {
+  public: Int!,
+  private: Int!,
+  protected: Int!,
+  sum: Int!,
+}
+type ClassFieldAttrs {
+  public: Int!,
+  private: Int!,
+  protected: Int!,
+  sum: Int!,
+}
+type ClassCouplingAttrs {
+  inherit: Int!
+  other: Int!
+  sum: Int!
+}
+type ClassAttrs {
+  name: String!,
+  coupling: ClassCouplingAttrs!
+  method: ClassMethodAttrs!
+  field: ClassFieldAttrs!
 }
 
 input CreateProjectInput {

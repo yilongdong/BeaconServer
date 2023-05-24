@@ -17,20 +17,20 @@
 
 效果如下图
 
-![1](./image/1.png)
+![1](./web/image/1.png)
 
-![2](./image/2.png)
+![2](./web/image/2.png)
 
-![3](./image/3.png)
+![3](./web/image/3.png)
 
-![4](./image/4.png)
+![4](./web/image/4.png)
 
-![5](./image/5.png)
+![5](./web/image/5.png)
 
-![6](./image/6.png)
+![6](./web/image/6.png)
 
-![7](./image/7.png)
+![7](./web/image/7.png)
 
-![8](./image/8.png)
+![8](./web/image/8.png)
 
-![9](./image/9.png)
+![9](./web/image/9.png)

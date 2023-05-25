@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ResolveField, Parent } from '@nestjs/graphql';
 import { FilesService } from './files.service';
 import {
   CreateFileInput,
@@ -25,6 +25,10 @@ export class FilesResolver {
   @Query('file')
   findOne(@Args('id') id: string) {
     return this.filesService.findOne(id);
+  }
+  @ResolveField()
+  async callgraph(@Parent() file) {
+    return this.filesService.callgraphOfFile(file.id);
   }
 
   @Mutation('updateFileCLOC')

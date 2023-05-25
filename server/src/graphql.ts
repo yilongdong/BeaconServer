@@ -1,3 +1,4 @@
+
 /*
  * -------------------------------------------------------
  * THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
@@ -194,6 +195,10 @@ export abstract class IQuery {
     abstract classes(): Nullable<Class>[] | Promise<Nullable<Class>[]>;
 
     abstract class(id: string): Nullable<Class> | Promise<Nullable<Class>>;
+
+    abstract functionRelations(): Nullable<FunctionRelation>[] | Promise<Nullable<FunctionRelation>[]>;
+
+    abstract functionRelation(id: number): Nullable<FunctionRelation> | Promise<Nullable<FunctionRelation>>;
 }
 
 export abstract class IMutation {
@@ -232,6 +237,8 @@ export abstract class IMutation {
     abstract updateClass(updateClassInput: UpdateClassInput): Class | Promise<Class>;
 
     abstract removeClass(id: number): Nullable<Class> | Promise<Nullable<Class>>;
+
+    abstract removeFunctionRelation(id: string): Nullable<FunctionRelation> | Promise<Nullable<FunctionRelation>>;
 }
 
 export class Class {
@@ -293,8 +300,11 @@ export class File {
 }
 
 export class FunctionRelation {
+    id: string;
     from: string;
     to: string;
+    expr: string;
+    type?: Nullable<string>;
 }
 
 export class Inclusion {

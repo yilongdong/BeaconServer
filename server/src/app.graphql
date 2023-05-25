@@ -35,6 +35,8 @@ type Query {
     file(id: String!): File
     classes: [Class]!
     class(id: String!): Class
+    functionRelations: [FunctionRelation]!
+    functionRelation(id: Int!): FunctionRelation
 }
 
 type Mutation {
@@ -56,5 +58,6 @@ type Mutation {
     createClass(createClassInput: CreateClassInput!): Class!
     updateClass(updateClassInput: UpdateClassInput!): Class!
     removeClass(id: Int!): Class
+    removeFunctionRelation(id: String!): FunctionRelation
 }
 

@@ -6,6 +6,7 @@ import {
   FileInfo,
   GitInfo,
   InclusionInfo,
+  CallGraph,
 } from './proto/File';
 import {
   CXXAccess,
@@ -17,6 +18,8 @@ import {
   CXXParam,
   CXXType,
   Location,
+  CXXFunctionRelation,
+  CXXFunctionRelation_RelationKind,
 } from './proto/Code';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as path from 'path';
@@ -190,9 +193,25 @@ class Convertor {
     if (items == undefined) return undefined;
     return items.map(callback);
   }
-
+  // static toFunctionRelationCreateWithoutFileInput(
+  //   cxxFunctionRelation: CXXFunctionRelation,
+  // ): Prisma.FunctionRelationCreateWithoutFileInput {
+  //   return {
+  //     caller: {
+  //       connectOrCreate: Convertor.toFunctionCreateOrConnectInput(
+  //         cxxFunctionRelation.from,
+  //       ),
+  //     },
+  //     callee: {
+  //       connectOrCreate: Convertor.toFunctionCreateOrConnectInput(
+  //         cxxFunctionRelation.to,
+  //       ),
+  //     },
+  //   };
+  // }
   static toFileCreateInput(fileInfo: FileInfo): Prisma.FileCreateInput {
     if (fileInfo == undefined) return undefined;
+    console.log(`create file input = ${fileInfo.path}`);
     const functionList = fileInfo?.tuInfo?.functionList?.filter(
       (func: CXXFunction) => {
         // return func.className == undefined;
@@ -273,26 +292,73 @@ export class UploadService {
   constructor(private prisma: PrismaService) {}
 
   debug(projectDumpFormat: ProjectDumpFormat) {
-    const filePathList = projectDumpFormat.fileInfoList.map(
-      (fileInfo, index) => {
-        return fileInfo.path;
-      },
-    );
-    const countResult = {};
-    filePathList.map((path) => {
-      countResult[path] = countResult[path] + 1 || 1;
-    });
-    console.log(JSON.stringify(countResult, null, 4));
+    // const filePathList = projectDumpFormat.fileInfoList.map(
+    //   (fileInfo, index) => {
+    //     return fileInfo.path;
+    //   },
+    // );
+    // const countResult = {};
+    // filePathList.map((path) => {
+    //   countResult[path] = countResult[path] + 1 || 1;
+    // });
+    // console.log(JSON.stringify(countResult, null, 4));
   }
+
+  tobatchList(relations: CXXFunctionRelation[], batchSize) {
+    const batchRelations: CXXFunctionRelation[][] = [];
+    for (let i = 0; i < relations.length; ) {
+      batchRelations.push(relations.slice(i, (i += batchSize)));
+    }
+    return batchRelations;
+  }
+
   async store(projectDumpFormat: ProjectDumpFormat) {
     this.debug(projectDumpFormat);
 
-    await this.prisma.project.create({
+    this.prisma.project.create({
       data: Convertor.toProjectCreateInput(projectDumpFormat),
-      include: {
-        principals: true,
-        files: true,
+      select: {
+        id: true,
+        files: {
+          select: {
+            path: true,
+          },
+        },
       },
     });
+    // 暂时屏蔽调用图上传，因为数据没有过滤，数据量太大导致上传速度太慢了
+    // for (let j = 0; j < projectDumpFormat.fileInfoList.length; ++j) {
+    //   const fileInfo = projectDumpFormat.fileInfoList[j];
+    //   const relations = fileInfo?.tuInfo?.callGraph?.relations || [];
+    //   if (relations.length == 0) return;
+    //   const batchRelation = this.tobatchList(relations, 500);
+    //
+    //   for (let i = 0; i < batchRelation.length; ++i) {
+    //     console.log(
+    //       `callgraph [begin] path = ${fileInfo.path} relations size = ${batchRelation[i].length}`,
+    //     );
+    //     await this.prisma.file.update({
+    //       where: {
+    //         path: fileInfo?.path,
+    //       },
+    //       data: {
+    //         callgraph: {
+    //           create: batchRelation[i].map(
+    //             (rel): Prisma.FunctionRelationCreateWithoutFileInput => {
+    //               return {
+    //                 from: rel.from.fullName,
+    //                 to: rel.to.fullName,
+    //                 type: rel.kind.toString(),
+    //               };
+    //             },
+    //           ),
+    //         },
+    //       },
+    //     });
+    //     console.log(
+    //       `callgraph [end] path = ${fileInfo.path} relations size = ${batchRelation[i].length}`,
+    //     );
+    //   }
+    // }
   }
 }

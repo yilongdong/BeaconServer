@@ -22,7 +22,14 @@ export class FilesService {
         directory: path.dirname(createFileInput.path),
         gitCommits: [],
         inclusions: [],
-        callgraph: [],
+      },
+    });
+  }
+
+  callgraphOfFile(fileId: string) {
+    return this.prisma.functionRelation.findMany({
+      where: {
+        fileId: fileId,
       },
     });
   }

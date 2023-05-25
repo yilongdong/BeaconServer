@@ -93,9 +93,14 @@ model Function {
   classId       String?  @db.ObjectId
 }
 
-type FunctionRelation {
-  from String
-  to   String
+model FunctionRelation {
+  id     String  @id @default(auto()) @map("_id") @db.ObjectId
+  from   String
+  to     String
+  file   File?   @relation(fields: [fileId], references: [id])
+  fileId String? @db.ObjectId
+  expr   String? @default("")
+  type   String? @default("CALL")
 }
 
 enum Access {
